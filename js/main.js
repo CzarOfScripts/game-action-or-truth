@@ -48,7 +48,7 @@ class Game
 	{
 		const item = document.createElement('div');
 		item.classList.add('tablet__item');
-		item.innerHTML = '<img src="/img/what.png" class="tablet__image" alt="What?">';
+		item.innerHTML = '<img src="./img/what.png" class="tablet__image" alt="What?">';
 
 		return item;
 	}
