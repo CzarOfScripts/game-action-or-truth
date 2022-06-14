@@ -347,6 +347,7 @@ body {
 	transition: 0.2s box-shadow, 0.2s border-color;
 	transition: 0.2s box-shadow, 0.2s border-color, 0.2s -webkit-box-shadow, 0.2s -moz-box-shadow;
 	font-size: 1.6rem;
+	text-align: center;
 }
 .tablet__item:hover {
 	cursor: pointer;
