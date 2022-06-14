@@ -1,0 +1,25 @@
+::-webkit-scrollbar
+{
+	width: 6px !important;
+	height: 6px !important;
+}
+::-webkit-scrollbar-thumb
+{
+	background: #dc4242 !important;
+	border-radius: 15px !important;
+}
+::-webkit-scrollbar-thumb:hover
+{
+	background: #dc5757 !important;
+}
+::-webkit-scrollbar-track
+{
+	background: #191919 !important;
+	border-radius: 0px !important;
+}
+
+// FireFox
+html
+{
+	scrollbar-color: #191919 #dc4242;
+}

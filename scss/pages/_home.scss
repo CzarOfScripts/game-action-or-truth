@@ -1,0 +1,74 @@
+html, body
+{
+	font-size: 10px;
+	font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+
+	min-height: 100vh;
+	max-width: 100vw;
+
+	height: 100%;
+	width: 100%;
+}
+
+body
+{
+	background-color: var(--background);
+	color: var(--color);
+}
+
+
+.tablet
+{
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+
+	padding: 15px;
+	gap: 25px;
+
+	&__item
+	{
+		--colorVariation: var(--colorVariationNone);
+
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+		padding: 10px;
+		width: 250px;
+		min-height: 100px;
+
+		background-color: var(--surface);
+		border-radius: 10px;
+		border: 1px solid var(--colorVariation);
+		box-shadow: 2px 2px 4px 1px var(--colorVariation);
+
+		transition: .2s box-shadow, .2s border-color;
+
+		font-size: 1.6rem;
+
+
+		&:hover
+		{
+			cursor: pointer;
+			border: 1px solid var(--colorVariation);
+			box-shadow: 4px 4px 6px 1px var(--colorVariation);
+		}
+
+		&--variation-action
+		{
+			--colorVariation: var(--colorVariationAction);
+		}
+
+		&--variation-truth
+		{
+			--colorVariation: var(--colorVariationTruth);
+		}
+	}
+
+	&__image
+	{
+		width: 75px;
+		height: 75px;
+	}
+}
