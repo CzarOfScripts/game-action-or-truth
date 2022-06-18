@@ -5,6 +5,8 @@ export class Game {
     #itemCount;
     #root;
     #tablet;
+    #modal;
+    #modalCard;
     #actionList;
     #truthList;
     constructor(root, itemLimit = 0) {
@@ -26,8 +28,25 @@ export class Game {
             const item = this.#createCard();
             this.#tablet.append(item);
         }
-        this.#tablet.addEventListener('click', this.#itemHandlerClick.bind(this));
-        this.#root.append(this.#tablet);
+        this.#tablet.addEventListener('click', this.#cardHandlerClick.bind(this));
+        this.#modal = this.#createModal();
+        this.#modal.addEventListener('click', this.#modalHandlerClick.bind(this));
+        this.#root.append(this.#tablet, this.#modal);
+    }
+    #createModal() {
+        const modal = document.createElement('div');
+        modal.classList.add('modal');
+        const card = document.createElement('div');
+        card.classList.add('card', 'modal__card');
+        const cardFront = document.createElement('div');
+        cardFront.classList.add('card__front');
+        cardFront.innerHTML = '<img src="./img/what.png" class="card__image" alt="What?">';
+        const cardBack = document.createElement('div');
+        cardBack.classList.add('card__back');
+        card.append(cardFront, cardBack);
+        modal.append(card);
+        this.#modalCard = { card: card, front: cardFront, back: cardBack };
+        return modal;
     }
     #createCard() {
         const item = document.createElement('div');
@@ -40,7 +59,15 @@ export class Game {
 		`;
         return item;
     }
-    #itemHandlerClick({ target }) {
+    #modalHandlerClick({ target }) {
+        if (target.closest('.modal__card') !== null) {
+            return;
+        }
+        this.#modal.classList.remove('modal--show');
+        this.#modalCard.back.textContent = '';
+        this.#modalCard.card.classList.remove('card--variation-' + Game.#VARIATIONS[0], 'card--variation-' + Game.#VARIATIONS[1], 'card--rotate');
+    }
+    #cardHandlerClick({ target }) {
         const card = target.closest('.tablet__item');
         if (card === null) {
             return;
@@ -54,8 +81,12 @@ export class Game {
             return;
         }
         const variation = this.#getRandomVariation();
-        cardText.textContent = (variation === 'truth' ? this.#getTruth() : this.#getAction());
+        const text = (variation === 'truth' ? this.#getTruth() : this.#getAction());
+        this.#modalCard.back.textContent = text;
+        cardText.textContent = text;
         this.#changeItemVariation(card, variation);
+        this.#modal.classList.add('modal--show');
+        window.requestAnimationFrame(() => this.#changeItemVariation(this.#modalCard.card, variation));
     }
     #changeItemVariation(item, variation) {
         item.classList.add('card--variation-' + variation, 'card--rotate');
