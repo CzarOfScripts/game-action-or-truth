@@ -1,25 +1,18 @@
-import { randomInt } from '../utils/randomInt.utils.js';
 import { shuffleArray } from '../utils/shuffleArray.utils.js';
 export class Game {
-    static #VARIATIONS = ['truth', 'action'];
     #itemCount;
     #root;
     #tablet;
     #modal;
     #modalCard;
-    #actionList;
-    #truthList;
+    #list;
     constructor(root, itemLimit = 0) {
         if (root === null) {
             throw 'root is null!';
         }
         this.#root = root;
         this.#loadActionAndTruth();
-        const counts = [this.#actionList.length, this.#truthList.length];
-        if (itemLimit) {
-            counts.push(itemLimit);
-        }
-        this.#itemCount = Math.min(...counts);
+        this.#itemCount = (itemLimit ? Math.min(this.#list.length, itemLimit) : this.#list.length);
     }
     init() {
         this.#tablet = document.createElement('div');
@@ -65,7 +58,7 @@ export class Game {
         }
         this.#modal.classList.remove('modal--show');
         this.#modalCard.back.textContent = '';
-        this.#modalCard.card.classList.remove('card--variation-' + Game.#VARIATIONS[0], 'card--variation-' + Game.#VARIATIONS[1], 'card--rotate');
+        this.#modalCard.card.classList.remove('card--variation-action', 'card--variation-truth', 'card--rotate');
     }
     #cardHandlerClick({ target }) {
         const card = target.closest('.tablet__item');
@@ -80,30 +73,20 @@ export class Game {
         if (cardText == null) {
             return;
         }
-        const variation = this.#getRandomVariation();
-        const text = (variation === 'truth' ? this.#getTruth() : this.#getAction());
-        this.#modalCard.back.textContent = text;
-        cardText.textContent = text;
-        this.#changeItemVariation(card, variation);
+        const item = this.#getListItem();
+        this.#modalCard.back.textContent = item.text;
+        cardText.textContent = item.text;
+        this.#changeItemVariation(card, item.type);
         this.#modal.classList.add('modal--show');
-        window.requestAnimationFrame(() => this.#changeItemVariation(this.#modalCard.card, variation));
+        window.requestAnimationFrame(() => this.#changeItemVariation(this.#modalCard.card, item.type));
     }
     #changeItemVariation(item, variation) {
         item.classList.add('card--variation-' + variation, 'card--rotate');
     }
-    #getRandomVariation() {
-        const num = randomInt(0, 100) % 2;
-        return Game.#VARIATIONS[num];
-    }
-    #getAction() {
-        const listItemIndex = this.#actionList.findIndex(this.#isNotShowItem);
-        this.#actionList[listItemIndex].show = true;
-        return this.#actionList[listItemIndex].text;
-    }
-    #getTruth() {
-        const listItemIndex = this.#truthList.findIndex(this.#isNotShowItem);
-        this.#truthList[listItemIndex].show = true;
-        return this.#truthList[listItemIndex].text;
+    #getListItem() {
+        const listItemIndex = this.#list.findIndex(this.#isNotShowItem);
+        this.#list[listItemIndex].show = true;
+        return this.#list[listItemIndex];
     }
     #loadActionAndTruth() {
         const actionList = [
@@ -233,16 +216,16 @@ export class Game {
             'Опиши свое первое впечатление о своём парне или девушке.',
             'Ты когда-нибудь себе оставил(а) книгу из библиотеки намеренно?'
         ];
-        shuffleArray(actionList);
-        shuffleArray(truthList);
-        this.#actionList = actionList.map(this.#formatList);
-        this.#truthList = truthList.map(this.#formatList);
+        const actions = actionList.map(this.#formatList.bind(null, 'action'));
+        const truths = truthList.map(this.#formatList.bind(null, 'truth'));
+        this.#list = [...actions, ...truths];
+        shuffleArray(this.#list);
     }
     #isNotShowItem({ show }) {
         return show === false;
     }
-    #formatList(text) {
-        return { text, show: false };
+    #formatList(type, text) {
+        return { text, show: false, type };
     }
 }
 //# sourceMappingURL=Game.class.js.map

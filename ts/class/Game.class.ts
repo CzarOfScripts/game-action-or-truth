@@ -1,19 +1,14 @@
-
-import { randomInt } from '../utils/randomInt.utils.js';
 import { shuffleArray } from '../utils/shuffleArray.utils.js';
 import { IItemList } from '../interface/IItemList.interface';
 
 export class Game
 {
-	static readonly #VARIATIONS: string[] = ['truth', 'action'];
-
 	#itemCount: number;
 	#root: HTMLDivElement;
 	#tablet: HTMLDivElement;
 	#modal: HTMLDivElement;
 	#modalCard: {card:HTMLDivElement, front:HTMLDivElement, back:HTMLDivElement};
-	#actionList: IItemList[];
-	#truthList: IItemList[];
+	#list: IItemList[];
 
 	public constructor(root: HTMLDivElement | null, itemLimit: number = 0)
 	{
@@ -25,13 +20,7 @@ export class Game
 		this.#root = root;
 		this.#loadActionAndTruth();
 
-		const counts: number[] = [this.#actionList.length, this.#truthList.length];
-		if (itemLimit)
-		{
-			counts.push(itemLimit);
-		}
-
-		this.#itemCount = Math.min(...counts);
+		this.#itemCount = (itemLimit ? Math.min(this.#list.length, itemLimit) : this.#list.length);
 	}
 
 	public init(): void
@@ -49,7 +38,6 @@ export class Game
 
 		this.#modal = this.#createModal();
 		this.#modal.addEventListener('click', this.#modalHandlerClick.bind(this));
-
 
 		this.#root.append(this.#tablet, this.#modal);
 	}
@@ -101,7 +89,7 @@ export class Game
 		this.#modal.classList.remove('modal--show');
 		this.#modalCard.back.textContent = '';
 
-		this.#modalCard.card.classList.remove('card--variation-' +Game.#VARIATIONS[0], 'card--variation-' +Game.#VARIATIONS[1], 'card--rotate');
+		this.#modalCard.card.classList.remove('card--variation-action', 'card--variation-truth', 'card--rotate');
 	}
 
 	#cardHandlerClick({target}: {target: HTMLDivElement}): void
@@ -124,17 +112,15 @@ export class Game
 			return;
 		}
 
-		const variation: string = this.#getRandomVariation();
-		const text: string = (variation === 'truth' ? this.#getTruth() : this.#getAction());
+		const item: IItemList = this.#getListItem();
 
+		this.#modalCard.back.textContent = item.text;
+		cardText.textContent = item.text;
 
-		this.#modalCard.back.textContent = text;
-		cardText.textContent = text;
-
-		this.#changeItemVariation(card, variation);
+		this.#changeItemVariation(card, item.type);
 
 		this.#modal.classList.add('modal--show');
-		window.requestAnimationFrame(() => this.#changeItemVariation(this.#modalCard.card, variation));
+		window.requestAnimationFrame(() => this.#changeItemVariation(this.#modalCard.card, item.type));
 	}
 
 	#changeItemVariation(item: HTMLDivElement, variation: string): void
@@ -142,27 +128,12 @@ export class Game
 		item.classList.add('card--variation-' +variation, 'card--rotate');
 	}
 
-	#getRandomVariation(): string
+	#getListItem(): IItemList
 	{
-		const num: number = randomInt(0, 100) % 2;
+		const listItemIndex: number = this.#list.findIndex(this.#isNotShowItem);
+		this.#list[listItemIndex].show = true;
 
-		return Game.#VARIATIONS[num];
-	}
-
-	#getAction(): string
-	{
-		const listItemIndex: number = this.#actionList.findIndex(this.#isNotShowItem);
-		this.#actionList[listItemIndex].show = true;
-
-		return this.#actionList[listItemIndex].text;
-	}
-
-	#getTruth(): string
-	{
-		const listItemIndex: number = this.#truthList.findIndex(this.#isNotShowItem);
-		this.#truthList[listItemIndex].show = true;
-
-		return this.#truthList[listItemIndex].text;
+		return this.#list[listItemIndex];
 	}
 
 	#loadActionAndTruth(): void
@@ -233,7 +204,6 @@ export class Game
 			'Выпей десять стаканов воды за один присест.',
 			'Купи рубашку в Интернете и подари ее отцу.'
 		];
-
 		const truthList: string[] =
 		[
 			'Самая большая ложь, которую кто-то сказал тебе в детстве?',
@@ -298,11 +268,11 @@ export class Game
 			'Ты когда-нибудь себе оставил(а) книгу из библиотеки намеренно?'
 		];
 
-		shuffleArray(actionList);
-		shuffleArray(truthList);
+		const actions: IItemList[] = actionList.map(this.#formatList.bind(null, 'action'));
+		const truths: IItemList[] = truthList.map(this.#formatList.bind(null, 'truth'));
 
-		this.#actionList = actionList.map(this.#formatList);
-		this.#truthList = truthList.map(this.#formatList);
+		this.#list = [...actions, ...truths];
+		shuffleArray(this.#list);
 	}
 
 	#isNotShowItem({show}: IItemList): boolean
@@ -310,8 +280,8 @@ export class Game
 		return show === false;
 	}
 
-	#formatList(text: string): IItemList
+	#formatList(type: 'truth' | 'action', text: string): IItemList
 	{
-		return {text, show: false};
+		return {text, show: false, type};
 	}
 }
