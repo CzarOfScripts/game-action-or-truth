@@ -23,33 +23,42 @@ export class Game {
         this.#tablet = document.createElement('div');
         this.#tablet.classList.add('tablet');
         for (let i = 0; i < this.#itemCount; i++) {
-            const item = this.#createItem();
+            const item = this.#createCard();
             this.#tablet.append(item);
         }
         this.#tablet.addEventListener('click', this.#itemHandlerClick.bind(this));
         this.#root.append(this.#tablet);
     }
-    #createItem() {
+    #createCard() {
         const item = document.createElement('div');
-        item.classList.add('tablet__item');
-        item.innerHTML = '<img src="./img/what.png" class="tablet__image" alt="What?">';
+        item.classList.add('tablet__item', 'card');
+        item.innerHTML = `
+			<div class="card__front">
+				<img src="./img/what.png" class="card__image" alt="What?">
+			</div>
+			<div class="card__back"></div>
+		`;
         return item;
     }
     #itemHandlerClick({ target }) {
-        const item = target.closest('.tablet__item');
-        if (item === null) {
+        const card = target.closest('.tablet__item');
+        if (card === null) {
             return;
         }
-        const classList = item.classList;
-        if (classList.contains('tablet__item--variation-truth') || classList.contains('tablet__item--variation-action')) {
+        const classList = card.classList;
+        if (classList.contains('card--variation-truth') || classList.contains('card--variation-action')) {
+            return;
+        }
+        const cardText = card.querySelector('.card__back');
+        if (cardText == null) {
             return;
         }
         const variation = this.#getRandomVariation();
-        this.#changeItemVariation(item, variation);
-        item.textContent = (variation === 'truth' ? this.#getTruth() : this.#getAction());
+        cardText.textContent = (variation === 'truth' ? this.#getTruth() : this.#getAction());
+        this.#changeItemVariation(card, variation);
     }
     #changeItemVariation(item, variation) {
-        item.classList.add('tablet__item--variation-' + variation);
+        item.classList.add('card--variation-' + variation, 'card--rotate');
     }
     #getRandomVariation() {
         const num = randomInt(0, 100) % 2;

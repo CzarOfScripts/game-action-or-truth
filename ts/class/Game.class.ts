@@ -39,7 +39,7 @@ export class Game
 
 		for (let i: number = 0; i < this.#itemCount; i++)
 		{
-			const item: HTMLDivElement = this.#createItem()
+			const item: HTMLDivElement = this.#createCard()
 			this.#tablet.append(item);
 		}
 
@@ -48,38 +48,50 @@ export class Game
 		this.#root.append(this.#tablet);
 	}
 
-	#createItem(): HTMLDivElement
+	#createCard(): HTMLDivElement
 	{
 		const item: HTMLDivElement = document.createElement('div');
-		item.classList.add('tablet__item');
-		item.innerHTML = '<img src="./img/what.png" class="tablet__image" alt="What?">';
+		item.classList.add('tablet__item', 'card');
+		item.innerHTML = `
+			<div class="card__front">
+				<img src="./img/what.png" class="card__image" alt="What?">
+			</div>
+			<div class="card__back"></div>
+		`;
 
 		return item;
 	}
 
 	#itemHandlerClick({target}: {target: HTMLDivElement}): void
 	{
-		const item: HTMLDivElement | null = target.closest('.tablet__item');
-		if (item === null)
+		const card: HTMLDivElement | null = target.closest('.tablet__item');
+		if (card === null)
 		{
 			return;
 		}
 
-		const classList: DOMTokenList = item.classList;
-		if (classList.contains('tablet__item--variation-truth') || classList.contains('tablet__item--variation-action'))
+		const classList: DOMTokenList = card.classList;
+		if (classList.contains('card--variation-truth') || classList.contains('card--variation-action'))
+		{
+			return;
+		}
+
+		const cardText: HTMLDivElement | null = card.querySelector('.card__back');
+		if (cardText == null)
 		{
 			return;
 		}
 
 		const variation: string = this.#getRandomVariation();
-		this.#changeItemVariation(item, variation);
 
-		item.textContent = (variation === 'truth' ? this.#getTruth() : this.#getAction());
+		cardText.textContent = (variation === 'truth' ? this.#getTruth() : this.#getAction());
+		this.#changeItemVariation(card, variation);
+
 	}
 
 	#changeItemVariation(item: HTMLDivElement, variation: string): void
 	{
-		item.classList.add('tablet__item--variation-' +variation);
+		item.classList.add('card--variation-' +variation, 'card--rotate');
 	}
 
 	#getRandomVariation(): string
