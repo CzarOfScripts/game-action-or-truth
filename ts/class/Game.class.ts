@@ -1,41 +1,45 @@
-const randomInt    = (min, max) => Math.floor(Math.random() * (max - min) + min);
-const shuffleArray = (array) =>
+
+import { randomInt } from '../utils/randomInt.utils.js';
+import { shuffleArray } from '../utils/shuffleArray.utils.js';
+import { IItemList } from '../interface/IItemList.interface';
+
+export class Game
 {
-	for (let i = array.length - 1; i > 0; i--)
+	static readonly #VARIATIONS: string[] = ['truth', 'action'];
+
+	#itemCount: number;
+	#root: HTMLDivElement;
+	#tablet: HTMLDivElement;
+	#actionList: IItemList[];
+	#truthList: IItemList[];
+
+	public constructor(root: HTMLDivElement | null, itemLimit: number = 0)
 	{
-		const j = Math.floor(Math.random() * (i + 1));
-		[array[i], array[j]] = [array[j], array[i]];
-	}
-};
+		if (root === null)
+		{
+			throw 'root is null!';
+		}
 
-
-class Game
-{
-	static #VARIATIONS = ['truth', 'action'];
-
-	#itemCount;
-	#root;
-	#tablet;
-	#actionList;
-	#truthList;
-
-	constructor(root, itemCount = 13)
-	{
 		this.#root = root;
-		this.#itemCount = itemCount;
-
 		this.#loadActionAndTruth();
-		this.#init();
+
+		const counts: number[] = [this.#actionList.length, this.#truthList.length];
+		if (itemLimit)
+		{
+			counts.push(itemLimit);
+		}
+
+		this.#itemCount = Math.min(...counts);
 	}
 
-	#init()
+	public init(): void
 	{
 		this.#tablet = document.createElement('div');
 		this.#tablet.classList.add('tablet');
 
-		for (let i = 0; i < this.#itemCount; i++)
+		for (let i: number = 0; i < this.#itemCount; i++)
 		{
-			const item = this.#createItem()
+			const item: HTMLDivElement = this.#createItem()
 			this.#tablet.append(item);
 		}
 
@@ -44,66 +48,66 @@ class Game
 		this.#root.append(this.#tablet);
 	}
 
-	#createItem()
+	#createItem(): HTMLDivElement
 	{
-		const item = document.createElement('div');
+		const item: HTMLDivElement = document.createElement('div');
 		item.classList.add('tablet__item');
 		item.innerHTML = '<img src="./img/what.png" class="tablet__image" alt="What?">';
 
 		return item;
 	}
 
-	#itemHandlerClick({target})
+	#itemHandlerClick({target}: {target: HTMLDivElement}): void
 	{
-		const item = target.closest('.tablet__item');
+		const item: HTMLDivElement | null = target.closest('.tablet__item');
 		if (item === null)
 		{
 			return;
 		}
 
-		const classList = item.classList;
+		const classList: DOMTokenList = item.classList;
 		if (classList.contains('tablet__item--variation-truth') || classList.contains('tablet__item--variation-action'))
 		{
 			return;
 		}
 
-		const variation = this.#getRandomVariation();
+		const variation: string = this.#getRandomVariation();
 		this.#changeItemVariation(item, variation);
 
 		item.textContent = (variation === 'truth' ? this.#getTruth() : this.#getAction());
 	}
 
-	#changeItemVariation(item, variation)
+	#changeItemVariation(item: HTMLDivElement, variation: string): void
 	{
 		item.classList.add('tablet__item--variation-' +variation);
 	}
 
-	#getRandomVariation()
+	#getRandomVariation(): string
 	{
-		const num = randomInt(0, 100) % 2;
+		const num: number = randomInt(0, 100) % 2;
 
 		return Game.#VARIATIONS[num];
 	}
 
-	#getAction()
+	#getAction(): string
 	{
-		const listItemIndex = this.#actionList.findIndex(({show}) => show === false);
+		const listItemIndex: number = this.#actionList.findIndex(this.#isNotShowItem);
 		this.#actionList[listItemIndex].show = true;
 
 		return this.#actionList[listItemIndex].text;
 	}
 
-	#getTruth()
+	#getTruth(): string
 	{
-		const listItemIndex = this.#truthList.findIndex(({show}) => show === false);
+		const listItemIndex: number = this.#truthList.findIndex(this.#isNotShowItem);
 		this.#truthList[listItemIndex].show = true;
 
 		return this.#truthList[listItemIndex].text;
 	}
 
-	#loadActionAndTruth()
+	#loadActionAndTruth(): void
 	{
-		this.#actionList =
+		const actionList: string[] =
 		[
 			'Помаши незнакомцу на дороге.',
 			'Пой как оперный певец.',
@@ -170,7 +174,7 @@ class Game
 			'Купи рубашку в Интернете и подари ее отцу.'
 		];
 
-		this.#truthList =
+		const truthList: string[] =
 		[
 			'Самая большая ложь, которую кто-то сказал тебе в детстве?',
 			'За кого бы ты хотела выйти замуж/ на ком жениться?',
@@ -234,17 +238,20 @@ class Game
 			'Ты когда-нибудь себе оставил(а) книгу из библиотеки намеренно?'
 		];
 
-		const formatList = (text) =>
-		{
-			return {text, show: false};
-		};
+		shuffleArray(actionList);
+		shuffleArray(truthList);
 
-		shuffleArray(this.#actionList);
-		shuffleArray(this.#truthList);
+		this.#actionList = actionList.map(this.#formatList);
+		this.#truthList = truthList.map(this.#formatList);
+	}
 
-		this.#actionList = this.#actionList.map(formatList);
-		this.#truthList = this.#truthList.map(formatList);
+	#isNotShowItem({show}: IItemList): boolean
+	{
+		return show === false;
+	}
+
+	#formatList(text: string): IItemList
+	{
+		return {text, show: false};
 	}
 }
-
-const game = new Game(document.querySelector('.game'));

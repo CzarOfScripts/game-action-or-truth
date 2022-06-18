@@ -1,0 +1,17 @@
+{
+	"compilerOptions":
+	{
+		"module": "ES2022",
+ 		"target": "ES2022",
+ 		"outDir": "js/",
+ 		"rootDir": "ts/",
+		"declarationDir": "./types",
+		"declaration": true,
+		"sourceMap": true,
+		"allowUnreachableCode": false,
+		"allowUnusedLabels": false,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"strictNullChecks": true
+	}
+}
