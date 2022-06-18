@@ -26,7 +26,7 @@ body
 	padding: 15px;
 	gap: 25px;
 
-	perspective: 3500;
+	perspective: 3500px;
 }
 
 .card
@@ -38,10 +38,16 @@ body
 	transition: transform 1s;
 
 	width: 250px;
-	min-height: 100px;
+	min-height: 120px;
 
 	font-size: 1.6rem;
 	text-align: center;
+
+	@media (max-width: $medium)
+	{
+		width: 150px;
+		font-size: 1.5rem;
+	}
 
 	&--rotate
 	{
@@ -97,7 +103,6 @@ body
 	{
 		user-select: none;
 
-		width: 75px;
-		height: 75px;
+		height: 75%;
 	}
 }

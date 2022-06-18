@@ -311,9 +311,9 @@ body {
 	        flex-wrap: wrap;
 	padding: 15px;
 	gap: 25px;
-	-webkit-perspective: 3500;
-	   -moz-perspective: 3500;
-	        perspective: 3500;
+	-webkit-perspective: 3500px;
+	   -moz-perspective: 3500px;
+	        perspective: 3500px;
 }
 
 .card {
@@ -329,9 +329,15 @@ body {
 	transition: transform 1s;
 	transition: transform 1s, -webkit-transform 1s, -moz-transform 1s, -o-transform 1s;
 	width: 250px;
-	min-height: 100px;
+	min-height: 120px;
 	font-size: 1.6rem;
 	text-align: center;
+}
+@media (max-width: 767px) {
+	.card {
+		width: 150px;
+		font-size: 1.5rem;
+	}
 }
 .card--rotate {
 	-webkit-transform: rotateY(180deg);
@@ -399,6 +405,5 @@ body {
 	   -moz-user-select: none;
 	    -ms-user-select: none;
 	        user-select: none;
-	width: 75px;
-	height: 75px;
+	height: 75%;
 }/*# sourceMappingURL=main.css.map */
